@@ -1,0 +1,187 @@
+<html>
+<head>
+<script>
+
+const throwSpeed = 1500;
+let playerColor = "dark";
+
+/**
+ *   For i = [0, 3], throw this dice stick, run animations, and return true
+ *   for up and false for down.
+ */
+function throwOne(i) {
+    let retVal = true;
+    let endVal;
+    if (Math.random() > 0.5) {
+        endVal = '&#x25d2;';     
+        retVal = true;
+    } else {
+        endVal = '&#x25d3;';             
+        retVal = false;
+    }
+    rotateAnimations(i, endVal);
+    return retVal;
+}
+
+/**
+ *  For the animations, returns a random shape of up down left or right semicircle.  
+ */
+function getRandomShape() {
+    const mr = Math.random();
+    let shapeEnd = 0;
+    if (mr < .25) {
+        shapeEnd = 0;
+    } else if (mr < .5) {
+        shapeEnd = 1;
+    } else if (mr < .75) {
+        shapeEnd = 2;
+    } else {
+        shapeEnd = 3;
+    }
+    return '&#x25d' + shapeEnd.toString();
+}
+
+/**
+ *   Sets up a series of timeouts to rotate this stick to a random shape
+ *   and then end on the correct final shape.
+ */
+function rotateAnimations(i, endVal) {
+    upId = document.getElementById('up' + i.toString());
+    for (let rotateTime = 50; rotateTime < throwSpeed; rotateTime += (200 + (i * 20))) {
+        setTimeout( (upId) => {upId.innerHTML = getRandomShape()}, 
+                     rotateTime, 
+                     upId);
+    }    
+    setTimeout( (upId, endVal) => {upId.innerHTML = endVal}, 
+                throwSpeed + ((i+1) * 20), 
+                upId, 
+                endVal);
+}
+
+/**
+ *   Main function for throwing four sticks.  Runs all animations and
+ *   also determines the Senet score.
+ */
+function throwFour() {
+    let totalUp = 0;
+    for (let i = 0; i < 4; i++) {
+        t = throwOne(i);
+        if (t) {
+            totalUp += 1;
+        }
+    }
+    let score = totalUp;
+    if (totalUp == 0) {
+        score = 6;
+    }
+    
+    const scoreObj = document.getElementById('score');
+    scoreObj.innerHTML = "?";
+    
+    let goAgain = "Go again!";
+    if (totalUp == 2 || totalUp == 3) {
+        if (playerColor == "light") {
+            playerColor = "dark";
+        } else {
+            playerColor = "light";
+        }
+        goAgain = "End turn."
+    }
+    
+    const resultObj = document.getElementById('result');
+    resultObj.innerHTML = "?";
+    
+    setTimeout( () => {
+        scoreObj.innerHTML = score.toString();
+        resultObj.innerHTML = goAgain;
+        document.getElementById('sticks').className = playerColor;
+    }, throwSpeed + 200);
+}
+
+</script>
+<style>
+BODY {
+    font-family: Garamond;
+    text-align: center;
+    background-color: #808090;
+}
+
+H1 {
+    color: #eeeeee;
+}
+
+.light {
+    background-color: #ffffe9;
+    color: #303044;
+    -moz-animation   : fadelight 1s linear;
+    -webkit-animation: fadelight 1s linear;
+    animation        : fadelight 1s linear;    
+}
+
+@-webkit-keyframes fadelight {
+    0% {background-color: #303044;}
+    100% {background-color: #ffffe9;}
+}
+@keyframes fadelight {
+    0% {background-color: #303044;}
+    100% {background-color: #ffffe9;}
+}
+
+
+.dark {
+    background-color: #303044;
+    color: #ffffe9;
+    -moz-animation   : fadedark 1s linear;
+    -webkit-animation: fadedark 1s linear;
+    animation        : fadedark 1s linear;    
+}
+
+@-webkit-keyframes fadedark {
+    0% {background-color: #ffffe9;}
+    100% {background-color: #303044;}
+}
+@keyframes fadedark {
+    0% {background-color: #ffffe9;}
+    100% {background-color: #303044;}
+}
+
+
+BUTTON {
+    height: 50px;
+    font: 30px 'Times';
+}
+
+#sticks {
+    font-size: 40px;
+}
+#sticks.stick {
+    font-size: 80px;
+}
+
+</style>
+<title>Senet Dice Sticks</title>
+</head>
+<body>
+<h1>&#x13154;&#x13251;&#x1339E; Senet Dice Sticks &#x1339E;&#x13251;&#x13154;</h1>
+
+<div id="sticks">
+<span class="stick" id="up0">?</span> &middot;
+<span class="stick" id="up1">?</span> &middot;
+<span class="stick" id="up2">?</span> &middot;
+<span class="stick" id="up3">?</span> <br />
+<span>SCORE:</span> <span id="score"></span>  &middot;
+<span id="result">?</span>
+</div>
+&nbsp;<br />
+
+<button onClick='throwFour()'>Click or hit Space to Throw!</button>
+
+<script>
+document.body.onkeyup = (e) => {
+    if (e.keyCode == 32){
+        throwFour();
+    }
+}
+</script>
+</body>
+</html>
